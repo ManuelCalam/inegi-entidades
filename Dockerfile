@@ -15,8 +15,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 # Directorio de trabajo
 WORKDIR /var/www/html
 
-# Copiar archivos de Composer primero
-COPY composer.json composer.lock ./
+# Copiar el proyecto
+COPY . .
 
 # Instalar dependencias de Laravel
 RUN composer install \
@@ -24,9 +24,6 @@ RUN composer install \
     --optimize-autoloader \
     --no-interaction \
     --prefer-dist
-
-# Copiar el proyecto
-COPY . .
 
 # Permisos para Laravel
 RUN mkdir -p storage/framework/cache \
