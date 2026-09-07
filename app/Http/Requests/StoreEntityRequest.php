@@ -22,14 +22,14 @@ class StoreEntityRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [   
+        return [
             'name'                => 'required|string|max:50|min:6|unique:entities,name',
             'key'                 => 'required|string|max:2|min:1|unique:entities,key',
             'regional_center'     => 'required|string',
             'bordering_entities'  => 'array|min:1',
-            'bordering_entities.*'=> 'string', 
-            'vegetation_types'    => 'required|array|min:1', 
-            'vegetation_types.*'  => 'string',
+            'bordering_entities.*' => 'string',
+            'vegetation_types'    => 'required|array|min:1',
+            'vegetation_types.*'  => 'integer|exists:vegetation_types,id',
         ];
     }
 
@@ -58,10 +58,12 @@ class StoreEntityRequest extends FormRequest
             'bordering_entities.array' => 'Entidades colindantes inválidas.',
             'bordering_entities.min' => 'Selecciona al menos una entidad colindante.',
 
-            // Mensajes para tipo de vegetación 
+            // Mensajes para tipos de vegetación
             'vegetation_types.required' => 'Selecciona los tipos de vegetación.',
-            'vegetation_types.array' => 'Tipos de vegetación inválidos.',
-            'vegetation_types.min' => 'Selecciona al menos un tipo de vegetación.',
+            'vegetation_types.array'    => 'Tipos de vegetación inválidos.',
+            'vegetation_types.min'      => 'Selecciona al menos un tipo de vegetación.',
+            'vegetation_types.*.integer' => 'Tipo de vegetación inválido.',
+            'vegetation_types.*.exists' => 'El tipo de vegetación seleccionado no existe.',
         ];
     }
 }

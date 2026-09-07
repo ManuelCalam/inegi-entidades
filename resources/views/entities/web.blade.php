@@ -16,6 +16,19 @@
 
             <p><a href="{{ route('municipalities.web') }}">Ir a Municipios</a></p>
 
+            <form action="{{ route('entities.web') }}" method="GET" style="margin-top: 30px;">
+                <div class="form-group">
+                    <label for="search">Buscar entidad por nombre</label>
+                    <input type="text" id="search" name="search" value="{{ request('search') }}">
+                </div>
+
+                <div class="buttons">
+                    <button type="submit">Buscar</button>
+                </div>
+            </form>
+
+            <br>
+
             @if (session('success'))
                 <div class="success">
                     {{ session('success') }}
@@ -39,6 +52,7 @@
                     </ul>
                 </div>
             @endif
+            
 
             <form action="{{ $entity ? route('entities.web.update', $entity) : route('entities.web.store') }}" method="POST">
 
@@ -99,12 +113,14 @@
                     <label for="vegetation_types">Tipos de vegetación</label>
 
                     <select id="vegetation_types" name="vegetation_types[]" multiple>
+                        @php
+                            $selectedVegetations = old('vegetation_types', $entity ? $entity->vegetationTypes->pluck('id')->toArray() : []);
+                        @endphp
 
                         @foreach ($vegetationTypes as $vegetationType)
-                            <option value="{{ $vegetationType }}" @selected( in_array($vegetationType, old( 'vegetation_types', $entity?->vegetation_types ?? [])))>
-                                {{ $vegetationType }}
+                            <option value="{{ $vegetationType->id }}" @selected(in_array($vegetationType->id, $selectedVegetations))>
+                                {{ $vegetationType->name }}
                             </option>
-
                         @endforeach
                     </select>
                 </div>
@@ -121,16 +137,7 @@
 
             </form>
 
-            <form action="{{ route('entities.web') }}" method="GET" style="margin-top: 30px;">
-                <div class="form-group">
-                    <label for="search">Buscar entidad por nombre</label>
-                    <input type="text" id="search" name="search" value="{{ request('search') }}">
-                </div>
 
-                <div class="buttons">
-                    <button type="submit">Buscar</button>
-                </div>
-            </form>
 
             @if ($entity)
             <form action="{{ route('entities.web.destroy', $entity) }}" method="POST" style="margin-top: 10px;">
@@ -164,7 +171,7 @@
                             <td>{{ $item->key }}</td>
                             <td>{{ $item->regional_center }}</td>
                             <td>{{ implode(', ', $item->bordering_entities ?? []) }}</td>
-                            <td>{{ implode(', ', $item->vegetation_types ?? []) }}</td>
+                            <td>{{ $item->vegetationTypes->pluck('name')->implode(', ') }}</td>
                         </tr>
 
                     @empty

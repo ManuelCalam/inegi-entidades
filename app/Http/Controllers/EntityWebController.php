@@ -5,15 +5,17 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreEntityRequest;
 use App\Http\Requests\UpdateEntityRequest;
 use App\Models\Entity;
+use App\Models\VegetationType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EntityWebController extends Controller
 {
     public function index(Request $request)
     {
-        $entities = Entity::orderBy('name')->get();
+        $entities = Entity::with('vegetationTypes')->orderBy('name')->get();
         $regionalCenters = config('regions');
-        $vegetationTypes = config('vegetation');
+        $vegetationTypes = VegetationType::orderBy('name')->get();
         $entity = null;
 
         if ($request->filled('search')) {
@@ -38,8 +40,15 @@ class EntityWebController extends Controller
         ));
     }
 
-    public function store(StoreEntityRequest $request){
-        Entity::create($request->validated());
+    public function store(StoreEntityRequest $request){ 
+        $data = $request->validated();
+        $vegetationTypeIds = $data['vegetation_types'];
+        unset($data['vegetation_types']);
+
+        DB::transaction(function () use ($data, $vegetationTypeIds) {
+            $entity = Entity::create($data);
+            $entity->vegetationTypes()->sync($vegetationTypeIds);
+        });
 
         return redirect()
             ->route('entities.web')
@@ -50,8 +59,8 @@ class EntityWebController extends Controller
     {
         $entities = Entity::orderBy('name')->get();
         $regionalCenters = config('regions');
-        $vegetationTypes = config('vegetation');
-
+        $vegetationTypes = VegetationType::orderBy('name')->get();
+        
         return view('entities.web', compact(
             'entities',
             'regionalCenters',
@@ -60,9 +69,19 @@ class EntityWebController extends Controller
         ));
     }
 
-    public function update(UpdateEntityRequest $request, Entity $entity){
-        $entity->update($request->validated());
 
+    public function update(UpdateEntityRequest $request, Entity $entity)
+    {
+        $data = $request->validated();
+
+        DB::transaction(function () use ($request, $entity, $data) {
+            if ($request->has('vegetation_types')) {
+                $entity->vegetationTypes()->sync($data['vegetation_types']);
+                unset($data['vegetation_types']);
+            }
+
+            $entity->update($data);
+        });
 
         return redirect()
             ->route('entities.web')

@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('entities', function (Blueprint $table) {
+        Schema::create('vegetation_types', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('key')->unique();
-            $table->string('regional_center')->nullable();
-            $table->json('bordering_entities')->nullable();
             $table->timestamps();
         });
     }
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('entities');
+        Schema::dropIfExists('vegetation_types');
     }
 };
