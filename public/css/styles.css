@@ -1,0 +1,113 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body{
+    display: block;
+    background-color: rgb(237, 237, 237);
+}
+
+main{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form-container{
+    display: grid;
+    grid-template-columns: max-content;
+    justify-content: center;
+    align-items: center;
+}
+
+form{
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 5px;
+    box-shadow: 0px 10px 20px 0px rgba(97, 97, 97, 0.15);
+}
+
+input {
+    display: block;
+    border-radius: 2px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    box-shadow: none;
+    border: none;
+    padding: 5px;
+    background-color: rgb(237, 237, 237);
+    border-color: 4px rgb(198, 198, 198) solid;
+}
+
+form{ 
+    display: block;
+    align-items: center;
+    justify-content: center;
+}
+
+button{
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 6px;
+    box-shadow: none;
+    border: none;
+    border-radius: 2px;
+    color: white;
+    background-color: rgb(0, 149, 199);
+}
+
+button:disabled{
+    background-color: rgb(177, 201, 210);
+}
+
+button:hover:enabled{
+    background-color: rgb(5, 179, 237);
+    cursor: pointer;
+}
+
+
+.table-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+table.content {
+    background-color: rgb(230, 230, 230);
+    padding: 1.5rem;
+    border-radius: 5px;
+    box-shadow: 0px 10px 20px 0px rgba(97, 97, 97, 0.15);
+    border-collapse: collapse;
+    min-width: 320px;
+    text-align: left;
+}
+
+table.content th {
+    background-color: rgb(0, 149, 199);
+    color: white;
+    padding: 8px 12px;
+    font-weight: normal;
+}
+
+table.content th:first-child {
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+}
+
+table.content th:last-child {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+table.content td {
+    background-color: white;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+
