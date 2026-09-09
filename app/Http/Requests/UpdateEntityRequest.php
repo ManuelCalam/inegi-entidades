@@ -24,6 +24,7 @@ class UpdateEntityRequest extends FormRequest
     public function rules(): array
     {
         $entity = $this->route('entity');
+        $entityId = is_object($entity) ? $entity->id : $entity;
 
         return [
             'name' => [
@@ -46,8 +47,12 @@ class UpdateEntityRequest extends FormRequest
 
             'regional_center' => 'sometimes|required|string',
 
-            'bordering_entities'   => 'sometimes|required|array|min:1',
-            'bordering_entities.*' => 'string',
+            'bordering_entities'   => 'sometimes|nullable|array',
+            'bordering_entities.*' => [
+                'integer',
+                'exists:entities,id',
+                Rule::notIn([$entityId]),
+            ],
 
             'vegetation_types'   => 'sometimes|required|array|min:1',
             'vegetation_types.*' => 'integer|exists:vegetation_types,id',
@@ -76,9 +81,10 @@ class UpdateEntityRequest extends FormRequest
             'regional_center.string'   => 'Centro regional inválido.',
 
             // Mensajes para entidades colindantes
-            'bordering_entities.required' => 'Selecciona las entidades colindantes.',
-            'bordering_entities.array'    => 'Entidades colindantes inválidas.',
-            'bordering_entities.min'      => 'Selecciona al menos una entidad colindante.',
+            'bordering_entities.array'     => 'Entidades colindantes inválidas.',
+            'bordering_entities.*.integer' => 'Entidad colindante inválida.',
+            'bordering_entities.*.exists'  => 'La entidad colindante seleccionada no existe.',
+            'bordering_entities.*.not_in'  => 'Una entidad no puede ser colindante de sí misma.',
 
             'vegetation_types.required'  => 'Selecciona los tipos de vegetación.',
             'vegetation_types.array'     => 'Tipos de vegetación inválidos.',

@@ -53,7 +53,7 @@ class EntitySeeder extends Seeder
                 [
                     'name' => $entity['name'],
                     'regional_center' => '',
-                    'bordering_entities' => []
+                    // 'bordering_entities' => []
                 ]
             );
         }

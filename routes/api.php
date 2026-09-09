@@ -18,3 +18,12 @@ Route::get('/user', function (Request $request) {
 Route::apiResource('entities', EntityController::class);
 
 Route::apiResource('municipalities', MunicipalityController::class);
+
+Route::get('/entities/{entity}/available-neighbors', [EntityController::class, 'availableNeighbors']);
+Route::post('/entities/{entity}/neighbors',[EntityController::class, 'addNeighbors']);
+
+Route::get('/entities/{entity}/available-vegetation', [EntityController::class, 'availableVegetation']);
+Route::post('/entities/{entity}/vegetation', [EntityController::class, 'addVegetation']);
+Route::get('/vegetation-types', [EntityController::class, 'allVegetation']); 
+Route::delete('/entities/{entity}/neighbors/{neighbor}', [EntityController::class, 'removeNeighbor']);
+Route::delete('/entities/{entity}/vegetation/{vegetation}', [EntityController::class, 'removeVegetation']);

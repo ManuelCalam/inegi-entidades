@@ -11,9 +11,9 @@ class VegetationType extends Model
         'name',
     ];
 
-    public function vegetationTypes(): BelongsToMany
+    public function entities(): BelongsToMany
     {
-        return $this->belongsToMany(VegetationType::class, 'entity_vegetation')
-        ->withTimestamps();
+        return $this->belongsToMany(Entity::class, 'entity_vegetation')
+            ->withTimestamps();
     }
 }

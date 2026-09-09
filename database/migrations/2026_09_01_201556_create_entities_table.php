@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->string('key')->unique();
             $table->string('regional_center')->nullable();
-            $table->json('bordering_entities')->nullable();
             $table->timestamps();
         });
     }

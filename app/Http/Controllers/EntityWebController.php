@@ -13,14 +13,18 @@ class EntityWebController extends Controller
 {
     public function index(Request $request)
     {
-        $entities = Entity::with('vegetationTypes')->orderBy('name')->get();
+        $entities = Entity::with(['vegetationTypes', 'neighbors'])
+                ->orderBy('name')
+                ->get();        
+
         $regionalCenters = config('regions');
         $vegetationTypes = VegetationType::orderBy('name')->get();
         $entity = null;
 
         if ($request->filled('search')) {
-            $entity = Entity::where('name', $request->search)->first();
-
+            $entity = Entity::with(['vegetationTypes', 'neighbors'])
+                ->where('name', $request->search)
+                ->first();
 
             if(!$entity){
                 return view('entities.web', compact(
@@ -40,14 +44,22 @@ class EntityWebController extends Controller
         ));
     }
 
-    public function store(StoreEntityRequest $request){ 
+    public function store(StoreEntityRequest $request)
+    { 
         $data = $request->validated();
         $vegetationTypeIds = $data['vegetation_types'];
-        unset($data['vegetation_types']);
+        $borderingEntityIds = $data['bordering_entities'] ?? [];
 
-        DB::transaction(function () use ($data, $vegetationTypeIds) {
+        unset($data['vegetation_types'], $data['bordering_entities']);
+
+        DB::transaction(function () use ($data, $vegetationTypeIds, $borderingEntityIds) {
             $entity = Entity::create($data);
+
             $entity->vegetationTypes()->sync($vegetationTypeIds);
+
+            if (!empty($borderingEntityIds)) {
+                $entity->neighbors()->sync($borderingEntityIds);
+            }
         });
 
         return redirect()
@@ -70,23 +82,33 @@ class EntityWebController extends Controller
     }
 
 
-    public function update(UpdateEntityRequest $request, Entity $entity)
-    {
-        $data = $request->validated();
+public function update(UpdateEntityRequest $request, Entity $entity)
+{
+    $data = $request->validated();
 
-        DB::transaction(function () use ($request, $entity, $data) {
-            if ($request->has('vegetation_types')) {
-                $entity->vegetationTypes()->sync($data['vegetation_types']);
-                unset($data['vegetation_types']);
-            }
+    DB::transaction(function () use ($entity, $data) {
 
-            $entity->update($data);
-        });
+        // Actualizar datos propios de la entidad
+        $entity->update([
+            'name' => $data['name'],
+            'key' => $data['key'],
+            'regional_center' => $data['regional_center'],
+        ]);
 
-        return redirect()
-            ->route('entities.web')
-            ->with('success', 'Entidad federativa actualizada exitosamente.');
-    }
+        // Actualizar relaciones según el estado actual del formulario
+        $entity->neighbors()->sync(
+            $data['bordering_entities'] ?? []
+        );
+
+        $entity->vegetationTypes()->sync(
+            $data['vegetation_types'] ?? []
+        );
+    });
+
+    return redirect()
+        ->route('entities.web')
+        ->with('success', 'Entidad federativa actualizada exitosamente.');
+}
 
     public function destroy(Entity $entity){
         $entity->delete();

@@ -1,222 +1,206 @@
-document.addEventListener('DOMContentLoaded', () => {
-    loadEntities();
+let currentType = null;
+let currentEntityId = null;
 
-    document.getElementById('btnAdd').addEventListener('click', createEntity);
-    document.getElementById('btnClear').addEventListener('click', clearForm);
-    document.getElementById('btnSearch').addEventListener('click', searchEntity);
-    document.getElementById('btnUpdate').addEventListener('click', updateEntity);
-    document.getElementById('btnDelete').addEventListener('click', deleteEntity);
-});
+const getCsrfToken = () => document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
-function loadEntities() {
-    fetch('/api/entities')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Datos recibidos', data);
-            const tableBody = document.getElementById('entities-content-body');
-            
-            tableBody.innerHTML = '';
 
-            data.forEach(entity => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${entity.id}</td>
-                    <td>${entity.name}</td>
-                    <td>${entity.key}</td>
-                `;
-                tableBody.appendChild(row);
-            })
-        })
-        .catch(error => {
-            console.error('Error al cargar las entidades', error);
+window.openModal = async function (event, type, entityId = null) {
+    if (event) {
+        event.preventDefault();
+    }
+
+    currentType = type;
+    currentEntityId = (!entityId || entityId === 'null') ? null : entityId;
+
+    const overlay = document.getElementById('assignModalOverlay');
+    const container = document.getElementById('optionsContainer');
+    const title = document.getElementById('modalTitle');
+
+    title.innerText = type === 'neighbors' 
+        ? 'Agregar Entidades Colindantes' 
+        : 'Agregar Tipos de Vegetación';
+
+    container.innerHTML = '<p>Cargando opciones...</p>';
+    overlay.style.display = 'flex';
+
+    let endpoint;
+    if (currentEntityId) {
+        endpoint = type === 'neighbors'
+            ? `/api/entities/${currentEntityId}/available-neighbors`
+            : `/api/entities/${currentEntityId}/available-vegetation`;
+    } else {
+        endpoint = type === 'neighbors'
+            ? `/api/entities`
+            : `/api/vegetation-types`;
+    }
+
+    try {
+        const response = await fetch(endpoint, {
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': getCsrfToken()
+            }
         });
-}
 
-function createEntity() {
-    const name = document.getElementById('name').value;
-    const key = document.getElementById('key').value;
+        if (!response.ok) throw new Error('Error al consultar las opciones.');
 
-    fetch('/api/entities', {
-        method: "POST",
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            name: name,
-            key: key
-        })
-    })
-    .then(async response => {
-        const data = await response.json();
+        let data = await response.json();
 
-        if (!response.ok) {
-            throw { status: response.status, data: data}
+        if (!currentEntityId) {
+            const targetSelectId = type === 'neighbors' ? 'bordering_entities' : 'vegetation_types';
+            const select = document.getElementById(targetSelectId);
+            
+            if (select) {
+                const selectedValues = Array.from(select.options).map(opt => String(opt.value));
+                data = data.filter(item => !selectedValues.includes(String(item.id)));
+            }
         }
 
-        return data
-    })
-    .then (result => {
-        console.log('Respuesta del servidor: ', result);
-        
-        clearForm();
-        loadEntities();
-    })
-    .catch(error => {
-        if (error.status === 422) {
-            console.error("Errores de validación: ", error.data.errors);
-
-            const messages = Object.values(error.data.errors).flat().join('\n');
-            alert(messages);
-        } else {
-            console.error('Error del servidor', error);
+        if (!Array.isArray(data) || data.length === 0) {
+            container.innerHTML = '<p>No hay elementos disponibles para agregar.</p>';
+            return;
         }
-    })
-}
 
-function searchEntity(){
-    const id = prompt('Ingresa el ID de la entidad a buscar:');
+        container.innerHTML = data.map(item => `
+            <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%; margin: 4px 0; padding: 4px 0;">
+                <label style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; width: 100%; text-align: left; cursor: pointer; font-weight: normal;">
+                    <input type="checkbox" name="selected_ids[]" value="${item.id}" data-name="${item.name}" style="margin: 0; padding: 0; width: 16px; height: 16px; flex-shrink: 0;">
+                    <span style="margin: 0; padding: 0; line-height: 1;">${item.name}</span>
+                </label>
+            </div>
+        `).join('');
 
-    if(!id) return;
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<p style="color:red;">Error al cargar las opciones.</p>';
+    }
+};
 
-    fetch(`/api/entities/${id}`, {        
-        headers: {
-            'Accept': 'application/json'
-        },
-    })
-    .then(async response => {
-        const data = await response.json();
 
-        if(!response.ok){
-            throw {status: response.status, data: data};
+window.closeModal = function () {
+    const overlay = document.getElementById('assignModalOverlay');
+    if (overlay) {
+        overlay.style.display = 'none';
+    }
+};
 
-        } 
 
-        return data;
-    })
-    .then(entity => {
-        document.getElementById('id').value = entity.id;
-        document.getElementById('name').value = entity.name;
-        document.getElementById('key').value = entity.key;
-        
-        document.getElementById('btnUpdate').disabled = false;
-        document.getElementById('btnDelete').disabled = false;
-        document.getElementById('btnAdd').disabled = true;
-        
-        document.getElementById('btnClear').textContent = 'Cancelar';
-    })
-    .catch ( error => {
-        if(error.status === 404){
-            alert('Entidad no encontrada');
-        } else {
-            console.error('Error al buscar: ', error);
-            alert('Ocurrió un error al realizar la búsqueda.');        
-        }
-        clearForm();
-    })
-}
+window.submitSelection = async function () {
+        console.log('SUBMIT SELECTION: solo UI, NO BD');
 
-function updateEntity(){
-console.log('¡Botón Actualizar presionado!'); // <-- Agrega esto para probar
 
-    const id = document.getElementById('id').value;
-    const name = document.getElementById('name').value;
-    const key = document.getElementById('key').value;
+    const checkedInputs = Array.from(
+        document.querySelectorAll('input[name="selected_ids[]"]:checked')
+    );
 
-    if (!id) {
-        alert('Primero debes buscar una entidad para poder actualizarla.');
+    if (checkedInputs.length === 0) {
+        window.closeModal();
         return;
     }
 
-    fetch(`/api/entities/${id}`, {        
-        method: "PUT",
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            name: name,
-            key: key
-        })
-    })
-    .then(async response => {
-        const data = await response.json();
+    const isNeighbors = currentType === 'neighbors';
 
-        if(!response.ok){
-            throw {status: response.status, data: data};
-        }
+    const targetSelectId = isNeighbors
+        ? 'bordering_entities'
+        : 'vegetation_types';
 
-        return data;
-    })
-    .then(result => {
-        console.log('Respuesta del servidor: ', result);
+    const targetListId = isNeighbors
+        ? 'bordering_entities_list'
+        : 'vegetation_types_list';
 
-        loadEntities();
-        clearForm();
-    })
-    .catch(error => {
-        if(error.status === 422){
-            console.error("Errores de validación: ", error.data.errors);
+    const selectedItems = checkedInputs.map(input => ({
+        id: input.value,
+        name: input.getAttribute('data-name')
+    }));
 
-            const messages = Object.values(error.data.errors).flat().join('\n');
-            alert(messages);
-        } else {
-            console.error('Error del servidor', error);
-        }
-    })
-}
+    appendItemsUI(
+        targetSelectId,
+        targetListId,
+        selectedItems,
+        currentType,
+        currentEntityId
+    );
 
-function deleteEntity(){
-    const id = document.getElementById('id').value;
-    
-    if (!id) {
-        alert('Primero debes buscar una entidad para poder eliminarla.');
-        return;
+    window.closeModal();
+};
+
+
+window.removeItem = function (type, itemId, entityId = null) {
+    const targetSelectId = type === 'neighbors'
+        ? 'bordering_entities'
+        : 'vegetation_types';
+
+    const targetListId = type === 'neighbors'
+        ? 'bordering_entities_list'
+        : 'vegetation_types_list';
+
+    removeFromDOM(targetSelectId, targetListId, itemId);
+};
+
+function removeFromDOM(selectId, listId, itemId) {
+    const select = document.getElementById(selectId);
+    const list = document.getElementById(listId);
+
+    if (select) {
+        const option = select.querySelector(`option[value="${itemId}"]`);
+        if (option) option.remove();
     }
 
-    if (!confirm(`¿Estás seguro de que deseas eliminar la entidad con ID ${id}?`)) {
-        return;
+    if (list) {
+        const li = list.querySelector(`li[data-id="${itemId}"]`);
+        if (li) li.remove();
     }
-
-    fetch(`/api/entities/${id}`, {        
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        }
-    })
-    .then(async response => {
-        const data = await response.json();
-        
-        if(!response.ok) {
-            throw {status: response.status, data: data}
-        }
-         
-        return data;
-    })
-    .then(result => {
-        loadEntities();
-        clearForm();
-    })
-    .catch( error => {
-        if(error.status === 404){
-            alert('La entidad que intentas eliminar ya no existe.');
-        }  else {
-            console.error('Error del servidor', error);
-        }
-        clearForm();
-    })
 }
 
-function clearForm(){
-    document.getElementById('id').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('key').value = '';
 
-    document.getElementById('btnAdd').disabled = false;
-    document.getElementById('btnUpdate').disabled = true;
-    document.getElementById('btnDelete').disabled = true;
+function appendItemsUI(selectId, listId, items, type, entityId) {
+    const select = document.getElementById(selectId);
+    const list = document.getElementById(listId);
 
-    document.getElementById('btnClear').textContent = 'Limpiar';
+    items.forEach(item => {
+        if (list && !list.querySelector(`li[data-id="${item.id}"]`)) {
+            const li = document.createElement('li');
+            li.setAttribute('data-id', item.id);
+            li.innerHTML = `
+                <span>${item.name}</span>
+                <button type="button" class="btn-remove" onclick="removeItem('${type}', ${item.id}, ${entityId ? entityId : 'null'})">&times;</button>
+            `;
+            list.appendChild(li);
+        }
+
+        if (select && !select.querySelector(`option[value="${item.id}"]`)) {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.selected = true;
+            select.appendChild(option);
+        }
+    });
 }
 
+
+function updateFullUI(selectId, listId, items, type, entityId) {
+    const select = document.getElementById(selectId);
+    const list = document.getElementById(listId);
+
+    if (select) select.innerHTML = '';
+    if (list) list.innerHTML = '';
+
+    items.forEach(item => {
+        if (list) {
+            const li = document.createElement('li');
+            li.setAttribute('data-id', item.id);
+            li.innerHTML = `
+                <span>${item.name}</span>
+                <button type="button" class="btn-remove" onclick="removeItem('${type}', ${item.id}, ${entityId ? entityId : 'null'})">&times;</button>
+            `;
+            list.appendChild(li);
+        }
+
+        if (select) {
+            const option = document.createElement('option');
+            option.value = item.id;
+            option.selected = true;
+            select.appendChild(option);
+        }
+    });
+}

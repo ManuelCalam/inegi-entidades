@@ -10,7 +10,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             VegetationTypeSeeder::class,
-            EntitySeeder::class
+            EntitySeeder::class,
+            RegionalCenterSeeder::class,
         ]);
     }
 }

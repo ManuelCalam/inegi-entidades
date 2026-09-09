@@ -12,11 +12,6 @@ class Entity extends Model
         'name',
         'key',
         'regional_center',
-        'bordering_entities',
-    ];
-
-    protected $casts = [
-        'bordering_entities' => 'array',
     ];
 
     public function municipalities(): HasMany
@@ -27,5 +22,15 @@ class Entity extends Model
     public function vegetationTypes(): BelongsToMany
     {
         return $this->belongsToMany(VegetationType::class, 'entity_vegetation');
+    }
+
+    public function neighbors(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Entity::class,
+            'entity_neighbor',    
+            'entity_id',           
+            'neighbor_entity_id'
+        );
     }
 }
