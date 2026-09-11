@@ -23,15 +23,16 @@ class StoreFireRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reported_at'           => ['required', 'date'],
-            'entity_id'             => ['required', 'exists:entities,id'],
-            'municipality_id'       => ['required', 'exists:municipalities,id'],
-            'vegetation_type_id'    => ['required', 'exists:vegetation_types,id'],
-            'fire_key'              => ['required', 'string', 'max:50', 'unique:fires,fire_key'],
-            'fire_status'           => ['required', 'string', 'max:50'],
-            'start_date'            => ['required', 'date'],
-            'extinction_date'       => ['nullable', 'date', 'after_or_equal:start_date'],
-            'control_percentage'    => ['required', 'numeric', 'min:0', 'max:100'],
+            'reported_at' => ['required', 'date'],
+            'entity_id' => ['required', 'exists:entities,id'],
+            'municipality_id' => ['required', 'exists:municipalities,id'],
+            'vegetation_type_id'=> ['required', 'exists:vegetation_types,id'],
+            'fire_key' => ['required', 'string', 'max:50', 'unique:fires,fire_key'],
+            'fire_status' => ['required', 'string', 'max:50'],
+            'start_date' => ['required', 'date'],
+            'extinction_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'duration_days' => ['required', 'integer', 'min:0'],
+            'control_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'extinction_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
         ];
     }
@@ -73,6 +74,11 @@ class StoreFireRequest extends FormRequest
             // Fecha de liquidación
             'extinction_date.date' => 'La fecha de liquidación debe ser una fecha válida.',
             'extinction_date.after_or_equal' => 'La fecha de liquidación debe ser igual o posterior a la fecha de inicio.',
+
+            // Días de duración
+            'duration_days.required' => 'El número de días de duración es obligatorio.',
+            'duration_days.integer' => 'Los días de duración deben ser un número entero.',
+            'duration_days.min' => 'Los días de duración no pueden ser un valor negativo.',
 
             // Porcentaje de control
             'control_percentage.required' => 'El porcentaje de control es obligatorio.',

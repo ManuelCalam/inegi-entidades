@@ -16,6 +16,7 @@ class Fire extends Model
         'fire_status',
         'start_date',
         'extinction_date',
+        'duration_days',
         'control_percentage',
         'extinction_percentage',
     ];

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('fire_key')->unique();
             $table->date('start_date');
             $table->date('extinction_date')->nullable();
-            
+            $table->integer('duration_days');
             $table->string('fire_status');
             $table->decimal('control_percentage', 5, 2)->default(0.00);
             $table->decimal('extinction_percentage', 5, 2)->default(0.00);
