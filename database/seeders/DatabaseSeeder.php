@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             VegetationTypeSeeder::class,
             EntitySeeder::class,
             RegionalCenterSeeder::class,
+            MunicipalitySeeder::class
         ]);
     }
 }

@@ -33,4 +33,8 @@ class Entity extends Model
             'neighbor_entity_id'
         );
     }
+
+    public function fires(): HasMany{
+        return $this->hasMany(Fire::class);
+    }
 }

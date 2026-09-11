@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class VegetationType extends Model
 {
@@ -15,5 +16,9 @@ class VegetationType extends Model
     {
         return $this->belongsToMany(Entity::class, 'entity_vegetation')
             ->withTimestamps();
+    }
+
+    public function fires(): HasMany{
+        return $this->hasMany(Fire::class);
     }
 }

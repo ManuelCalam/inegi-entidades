@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EntityWebController;
+use App\Http\Controllers\FireController;
 use App\Http\Controllers\MunicipalityWebController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/entities/{entity}', [EntityWebController::class, 'show'])->name('entities.web.show');
     Route::put('/entities/{entity}', [EntityWebController::class, 'update'])->name('entities.web.update');
     Route::delete('/entities/{entity}', [EntityWebController::class, 'destroy'])->name('entities.web.destroy');
+
+    
+    //Rutas para incendios
+    Route::prefix('fires/{entity_id}')->group(function () {
+        Route::get('/municipalities', [FireController::class, 'getMunicipalities']);
+        Route::get('/vegetation-types', [FireController::class, 'getVegetationTypes']);
+        Route::get('/generate-fire-key', [FireController::class, 'generateFireKey']);
+    });
+    Route::resource('fires', FireController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+
 });
 
 
