@@ -12,7 +12,7 @@ class Fire extends Model
         'entity_id',
         'municipality_id',
         'vegetation_type_id',
-        'fire_key',
+        'fire_folio_id',
         'fire_status',
         'start_date',
         'extinction_date',
@@ -31,6 +31,10 @@ class Fire extends Model
 
     public function vegetationType(): BelongsTo{
         return $this->belongsTo(VegetationType::class);
+    }
+
+    public function fireFolio(): BelongsTo{
+        return $this->belongsTo(FireFolio::class);
     }
 
 }

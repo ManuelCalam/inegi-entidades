@@ -6,18 +6,16 @@ use App\Http\Requests\StoreFireRequest;
 use App\Http\Requests\UpdateFireRequest;
 use App\Models\Entity;
 use App\Models\Fire;
+use App\Models\FireFolio;
 use App\Models\Municipality;
-use App\Models\VegetationType;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-
-use function Laravel\Prompts\select;
+use Illuminate\Support\Facades\DB;
 
 class FireController extends Controller
 {
 
-    public function index(Request $request)
-    {
+    public function index(Request $request){
         $entities = Entity::select('id', 'name', 'key')
             ->orderBy('name')
             ->get();
@@ -25,7 +23,8 @@ class FireController extends Controller
         $fire = null;
 
         if ($request->filled('search')) {
-            $fire = Fire::where('fire_key', $request->search)->first();
+            $fire = Fire::whereRelation('fireFolio', 'full_key', trim($request->search))
+                    ->first();
 
             if (!$fire) {
                 return redirect()->route('fires.index')
@@ -36,20 +35,58 @@ class FireController extends Controller
         return view('fires.index', compact('entities', 'fire'));
     }
 
-    public function store(StoreFireRequest $request)
-    {
-        $data = $request->validated();
-        $data['fire_key'] = $this->calculateFireKey($data['entity_id']);
+    public function store(StoreFireRequest $request){
+        DB::transaction(function () use ($request) {
+            
+            $entityId = $request->validated('entity_id');
+            $currentYearFull = (int) Carbon::now()->format('Y');
+            $currentYearTwoDigits = Carbon::now()->format('y');
 
-        Fire::create($data);
+            $lastFolio = FireFolio::where('entity_id', $entityId)
+                ->where('year', $currentYearFull)
+                ->lockForUpdate()
+                ->latest('consecutive_number')
+                ->first();
+
+            $nextConsecutive = $lastFolio ? ($lastFolio->consecutive_number + 1) : 1;
+            
+            $entity = Entity::findOrFail($entityId);
+            $counterFormatted = str_pad($nextConsecutive, 4, '0', STR_PAD_LEFT);
+            $fullKey = "{$currentYearTwoDigits}-{$entity->key}-{$counterFormatted}";
+
+            $fireFolio = FireFolio::create([
+                'year'               => $currentYearFull,
+                'entity_id'          => $entityId,
+                'consecutive_number' => $nextConsecutive,
+                'full_key'           => $fullKey,
+            ]);
+
+            $data = $request->validated();
+            $dateData = $this->calculateFireDates(
+                $request->input('start_date'),
+                $request->input('extinction_date')
+            );
+
+            $data = array_merge($data, $dateData);
+            $data['fire_folio_id'] = $fireFolio->id;
+
+            Fire::create($data);
+        });
 
         return redirect()
             ->route('fires.index')
-            ->with('success', 'Incendio registrado correctamente');
+            ->with('success', 'Incendio y folio registrado correctamente.');
     }
 
-    public function update(UpdateFireRequest $request, Fire $fire){
-        $fire->update($request->validated());
+   public function update(UpdateFireRequest $request, Fire $fire){
+        $data = $request->validated();
+
+        $dateData = $this->calculateFireDates(
+            $request->input('start_date'),
+            $request->input('extinction_date')
+        );
+
+        $fire->update(array_merge($data, $dateData));
 
         return redirect()
             ->route('fires.index')
@@ -65,7 +102,7 @@ class FireController extends Controller
     }
 
     public function getMunicipalities(int $entity_id) {
-                $municipalities = Municipality::where('entity_id', $entity_id)
+        $municipalities = Municipality::where('entity_id', $entity_id)
             ->select('id', 'name')
             ->orderBy('name')
             ->get();
@@ -95,20 +132,40 @@ class FireController extends Controller
     private function calculateFireKey(int $entityId): string
     {
         $entity = Entity::findOrFail($entityId);
-        $entityKey = $entity->key;
+        
+        $currentYearTwoDigits = Carbon::now()->format('y'); 
+        $currentYearFull = (int) Carbon::now()->format('Y');
 
-        $currentYear = Carbon::now()->format('y'); // Obtener los últimos dígitos del año actual
+        // Buscar el último folio registrado para este año y entidad
+        $lastFolio = FireFolio::where('entity_id', $entityId)
+            ->where('year', $currentYearFull)
+            ->latest('consecutive_number')
+            ->first();
+        
+        $nextConsecutive = $lastFolio ? ($lastFolio->consecutive_number + 1) : 1;
 
-        // Obtener el de fechas correspondientes al año actual (2026-01-01 00:00:00 y 2026-12-31 23:59:59) 
-        $startOfYear = Carbon::now()->startOfYear();
-        $endOfYear = Carbon::now()->endOfYear();
+        $counter = str_pad($nextConsecutive, 4, '0', STR_PAD_LEFT);
 
-        // Cuenta la cantidad de registros en el año
-        $countThisYear = Fire::whereBetween('created_at', [$startOfYear, $endOfYear])->count(); 
-        $nextFire = $countThisYear + 1;
+        return "{$currentYearTwoDigits}-{$entity->key}-{$counter}";
+    }
 
-        $counter = str_pad($nextFire, 4, '0', STR_PAD_LEFT);
+    private function calculateFireDates(string $startDateRaw, ?string $extinctionDateRaw): array
+    {
+        $startDate = Carbon::parse($startDateRaw)->startOfDay();
 
-        return "{$currentYear}-{$entityKey}-{$counter}";
+        if (!empty($extinctionDateRaw)) {
+            $extinctionDate = Carbon::parse($extinctionDateRaw)->startOfDay();
+        } else {
+            $extinctionDate = Carbon::now()->startOfDay();
+        }
+
+        $diffDays = (int) $startDate->diffInDays($extinctionDate);
+        $durationDays = (int) $diffDays + 1;
+
+        return [
+            'start_date'      => $startDate->format('Y-m-d'),
+            'extinction_date' => $extinctionDate->format('Y-m-d'),
+            'duration_days'   => $durationDays,
+        ];
     }
 }

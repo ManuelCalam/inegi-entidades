@@ -23,15 +23,15 @@ class StoreFireRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reported_at' => ['required', 'date'],
+            // 'reported_at' => ['required', 'date'],
             'entity_id' => ['required', 'exists:entities,id'],
             'municipality_id' => ['required', 'exists:municipalities,id'],
             'vegetation_type_id'=> ['required', 'exists:vegetation_types,id'],
-            'fire_key' => ['required', 'string', 'max:50', 'unique:fires,fire_key'],
+            // 'fire_key' => ['required', 'string', 'max:50', 'unique:fires,fire_key'],
             'fire_status' => ['required', 'string', 'max:50'],
             'start_date' => ['required', 'date'],
             'extinction_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'duration_days' => ['required', 'integer', 'min:0'],
+            // 'duration_days' => ['required', 'integer', 'min:0'],
             'control_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
             'extinction_percentage' => ['required', 'numeric', 'min:0', 'max:100'],
         ];
@@ -41,8 +41,8 @@ class StoreFireRequest extends FormRequest
     {
         return [
             // Fecha y hora de reporte
-            'reported_at.required' => 'La fecha y hora de reporte son obligatorias.',
-            'reported_at.date' => 'La fecha de reporte debe ser una fecha válida.',
+            // 'reported_at.required' => 'La fecha y hora de reporte son obligatorias.',
+            // 'reported_at.date' => 'La fecha de reporte debe ser una fecha válida.',
 
             // Entidad federativa
             'entity_id.required' => 'Debes seleccionar una entidad federativa.',
@@ -55,12 +55,6 @@ class StoreFireRequest extends FormRequest
             // Tipo de vegetación
             'vegetation_type_id.required' => 'Debes seleccionar un tipo de vegetación.',
             'vegetation_type_id.exists' => 'El tipo de vegetación seleccionado no es válido.',
-
-            // Clave del incendio
-            'fire_key.required' => 'La clave del incendio es obligatoria.',
-            'fire_key.string' => 'La clave del incendio debe ser una cadena de texto.',
-            'fire_key.max' => 'La clave del incendio no puede tener más de 50 caracteres.',
-            'fire_key.unique' => 'Esta clave de incendio ya se encuentra registrada.',
 
             // Estado del incendio
             'fire_status.required' => 'El estado del incendio es obligatorio.',
@@ -76,9 +70,9 @@ class StoreFireRequest extends FormRequest
             'extinction_date.after_or_equal' => 'La fecha de liquidación debe ser igual o posterior a la fecha de inicio.',
 
             // Días de duración
-            'duration_days.required' => 'El número de días de duración es obligatorio.',
-            'duration_days.integer' => 'Los días de duración deben ser un número entero.',
-            'duration_days.min' => 'Los días de duración no pueden ser un valor negativo.',
+            // 'duration_days.required' => 'El número de días de duración es obligatorio.',
+            // 'duration_days.integer' => 'Los días de duración deben ser un número entero.',
+            // 'duration_days.min' => 'Los días de duración no pueden ser un valor negativo.',
 
             // Porcentaje de control
             'control_percentage.required' => 'El porcentaje de control es obligatorio.',
@@ -87,7 +81,7 @@ class StoreFireRequest extends FormRequest
             'control_percentage.max' => 'El porcentaje de control no puede ser mayor a 100.',
 
             // Porcentaje de liquidación
-            'extinction_percentage.required' => 'El porcentaje de control es obligatorio.',
+            'extinction_percentage.required' => 'El porcentaje de liquidación es obligatorio.',
             'extinction_percentage.numeric' => 'El porcentaje de liquidación debe ser un valor numérico.',
             'extinction_percentage.min' => 'El porcentaje de liquidación no puede ser menor a 0.',
             'extinction_percentage.max' => 'El porcentaje de liquidación no puede ser mayor a 100.',

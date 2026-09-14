@@ -8,11 +8,14 @@
 
         <link rel="stylesheet" href="{{ asset('css/entities.css') }}">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        
     </head>
 
     <body>
-        <div class="container">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        @include('components.alerts')
 
+        <div class="container">
             <h1>Gestión de Incendios</h1>
 
             <form action="{{ route('fires.index') }}" method="GET" style="margin-top: 30px;">
@@ -34,18 +37,6 @@
                 </div>
             </form>
 
-            <!-- Agrega esto justo antes del <form action="..."> -->
-            @if ($errors->any())
-                <div style="background-color: #f8d7da; color: #721c24; padding: 12px; margin-bottom: 20px; border-radius: 5px; border: 1px solid #f5c6cb;">
-                    <strong>Por favor corrige los siguientes errores:</strong>
-                    <ul style="margin-top: 8px; margin-bottom: 0; padding-left: 20px;">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <br>
 
             <form action="{{ isset($fire) ? route('fires.update', $fire->id) : route('fires.store') }}" method="POST">
@@ -61,11 +52,12 @@
                         <input 
                             type="text" 
                             id="fire_key" 
-                            name="fire_key" 
-                            value="{{ old('fire_key', $fire->fire_key ?? '') }}" 
+                            class="form-control-plaintext"
+                            value="{{ isset($fire) ? $fire->fireFolio?->full_key : old('fire_key_preview', '') }}" 
                             readonly 
-                            placeholder="Se generará automáticamente"> 
-                        </div>
+                            disabled
+                            placeholder="Se generará automaticamente">
+                    </div>
 
                     <div class="form-group" style="flex: 3;">
                         <label for="reported_at">Fecha y hora de reporte</label>
@@ -73,6 +65,7 @@
                             type="datetime-local" 
                             id="reported_at" 
                             name="reported_at"
+                            class="@error('reported_at') is-invalid @enderror"
                             value="{{ old('reported_at', isset($fire->reported_at) ? \Carbon\Carbon::parse($fire->reported_at)->format('Y-m-d\TH:i') : '') }}">
                     </div>
                 </div>
@@ -80,7 +73,7 @@
                 {{-- Lista de entidades recibida directamente del controlador --}}
                 <div class="form-group">
                     <label for="entity_id">Entidad federativa</label>
-                    <select id="entity_id" name="entity_id">
+                    <select id="entity_id" name="entity_id" class="@error('entity_id') is-invalid @enderror">
                         @forelse($entities as $entity)
                             @if ($loop->first)
                                 <option value="">Selecciona una entidad</option>
@@ -98,7 +91,7 @@
                 <!-- Municipio -->
                 <div class="form-group">
                     <label for="municipality_id">Municipio</label>
-                    <select id="municipality_id" name="municipality_id">
+                    <select id="municipality_id" name="municipality_id" class="@error('municipality_id') is-invalid @enderror">
                         <option value="">Selecciona un municipio</option>
                     </select>
                 </div>
@@ -106,7 +99,7 @@
                 <!-- Estado del incendio -->
                 <div class="form-group">
                     <label for="fire_status">Estado del incendio</label>
-                    <select id="fire_status" name="fire_status">
+                    <select id="fire_status" name="fire_status" class="@error('fire_status') is-invalid @enderror">
                         <option value="">Selecciona el estado</option>
                         <option value="Activo" {{ old('fire_status', $fire->fire_status ?? '') == 'Activo' ? 'selected' : '' }}>Activo</option>
                         <option value="Controlado" {{ old('fire_status', $fire->fire_status ?? '') == 'Controlado' ? 'selected' : '' }}>Controlado</option>
@@ -122,6 +115,7 @@
                             type="date" 
                             id="start_date" 
                             name="start_date" 
+                            class="@error('start_date') is-invalid @enderror"
                             value="{{ old('start_date', isset($fire->start_date) ? \Carbon\Carbon::parse($fire->start_date)->format('Y-m-d') : '') }}">                    
                     </div>
 
@@ -141,7 +135,8 @@
                             id="duration_days" 
                             name="duration_days" 
                             value="{{ old('duration_days', $fire->duration_days ?? '') }}" 
-                            placeholder="0">                    
+                            placeholder="0"
+                            readonly>                    
                     </div>
                 </div>
 
@@ -153,6 +148,7 @@
                             type="number" 
                             id="control_percentage" 
                             name="control_percentage" 
+                            class="@error('control_percentage') is-invalid @enderror"
                             value="{{ old('control_percentage', $fire->control_percentage ?? '') }}" 
                             min="0" 
                             max="100" 
@@ -165,6 +161,7 @@
                             type="number" 
                             id="extinction_percentage" 
                             name="extinction_percentage" 
+                            class="@error('extinction_percentage') is-invalid @enderror"
                             value="{{ old('extinction_percentage', $fire->extinction_percentage ?? 0) }}"                            
                             min="0" 
                             max="100" 
@@ -175,7 +172,7 @@
                 {{-- Tipos de vegetación --}}
                 <div class="form-group">
                     <label for="vegetation_type_id">Tipo de vegetación</label>
-                    <select id="vegetation_type_id" name="vegetation_type_id">
+                    <select id="vegetation_type_id" name="vegetation_type_id" class="@error('vegetation_type_id') is-invalid @enderror">
                         <option value="">Selecciona un tipo de vegetación</option>
                     </select>
                 </div>

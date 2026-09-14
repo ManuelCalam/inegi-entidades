@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('fires', function (Blueprint $table) {
             $table->id();
             $table->timestamp('reported_at');
-            $table->string('fire_key')->unique();
+            // $table->string('fire_key')->unique();
             $table->date('start_date');
             $table->date('extinction_date')->nullable();
             $table->integer('duration_days');
@@ -37,6 +37,11 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('vegetation_types')
                 ->nullOnDelete();
+
+            $table->foreignId('fire_folio_id')
+                ->unique()
+                ->constrained('fire_folios')
+                ->cascadeOnDelete();
         });
     }
 

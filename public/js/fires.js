@@ -117,7 +117,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
             if (diffDays >= 0) {
-                // Sumamos 1 para que el mismo día cuente como 1 día entero
                 durationDaysInput.value = diffDays + 1; 
             } else {
                 durationDaysInput.value = 0;
@@ -201,6 +200,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
         reportedAtInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
     }
-
-
 });

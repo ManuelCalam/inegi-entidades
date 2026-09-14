@@ -37,4 +37,8 @@ class Entity extends Model
     public function fires(): HasMany{
         return $this->hasMany(Fire::class);
     }
+
+    public function fireFolios(): HasMany{
+        return $this->hasMany(FireFolio::class);
+    }
 }
