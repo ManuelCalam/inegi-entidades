@@ -35,6 +35,6 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('success', "Usuario '{$user->name}' registrado con rol " . ucfirst($request->role) . " correctamente.");
+            ->with('success', "Usuario registrado con rol " . ucfirst($request->role) . " correctamente.");
     }
 }

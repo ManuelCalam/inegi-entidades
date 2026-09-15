@@ -18,7 +18,7 @@
             <!-- FORMULARIO DE REGISTRO -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    <i class="fa-solid fa-user-plus mr-2"></i> Registrar Nuevo Usuario
+                    <i class="fa-solid"></i> Registrar Nuevo Usuario
                 </h3>
 
                 <form action="{{ route('users.store') }}" method="POST">
@@ -77,11 +77,8 @@
                     </div>
 
                     <div class="mt-4 flex justify-end gap-2">
-                        <button type="reset" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md text-sm font-semibold">
-                            <i class="fa-solid fa-eraser mr-1"></i> Limpiar
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-semibold">
-                            <i class="fa-solid fa-floppy-disk mr-1"></i> Guardar Usuario
+                        <button type="submit" style="background-color: rgb(0, 149, 199);" class="px-4 py-2 text-white rounded-md text-sm font-semibold">
+                            Guardar Usuario <i class="fa-solid fa-plus mr-1"></i> 
                         </button>
                     </div>
                 </form>
@@ -90,7 +87,7 @@
             <!-- TABLA DE USUARIOS REGISTRADOS -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    <i class="fa-solid fa-users mr-2"></i> Usuarios del Sistema
+                    <i class="fa-solid"></i> Usuarios del Sistema
                 </h3>
 
                 <div class="overflow-x-auto">
@@ -113,7 +110,7 @@
                                     <td class="px-4 py-3">
                                         {{-- Muestra los roles asignados mediante Spatie --}}
                                         @forelse($user->getRoleNames() as $role)
-                                            <span class="px-2 py-1 text-xs font-semibold rounded-full {{ $role === 'admin' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' : 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' }}">
+                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'">
                                                 {{ ucfirst($role) }}
                                             </span>
                                         @empty
