@@ -36,7 +36,7 @@ class FireController extends Controller
     }
 
     public function store(StoreFireRequest $request){
-        DB::transaction(function () use ($request) {
+        $fullKey = DB::transaction(function () use ($request) {
             
             $entityId = $request->validated('entity_id');
             $currentYearFull = (int) Carbon::now()->format('Y');
@@ -71,11 +71,13 @@ class FireController extends Controller
             $data['fire_folio_id'] = $fireFolio->id;
 
             Fire::create($data);
+
+            return $fullKey;
         });
 
         return redirect()
             ->route('fires.index')
-            ->with('success', 'Incendio y folio registrado correctamente.');
+            ->with('success', "Incendio con folio {$fullKey} registrado correctamente.");
     }
 
    public function update(UpdateFireRequest $request, Fire $fire){

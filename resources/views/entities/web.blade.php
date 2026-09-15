@@ -14,7 +14,13 @@
     <body>
         <div class="container">
 
-            <h1>Gestión de Entidades Federativas</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h1 style="margin: 0;">Gestión de Entidades Federativas</h1>
+                
+                <a href="{{ route('dashboard') }}" style="text-decoration: none; padding: 8px 16px; color: rgb(0, 116, 154);">
+                    <i class="fa-solid fa-arrow-left"></i> Regresar
+                </a>
+            </div>
 
             {{-- <p><a href="{{ route('municipalities.web') }}">Ir a Municipios</a></p> --}}
 

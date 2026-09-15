@@ -46,7 +46,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('entities.web'));
+        return redirect(route('dashboard'));
         // return redirect(route('dashboard', absolute: false));
     }
 }

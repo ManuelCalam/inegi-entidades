@@ -4,6 +4,7 @@ use App\Http\Controllers\EntityWebController;
 use App\Http\Controllers\FireController;
 use App\Http\Controllers\MunicipalityWebController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -44,6 +45,8 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
 
 
+    //Ruta para administrar usuarios:
+    Route::resource('users', UserController::class)->only(['index', 'store']);
 });
 
 

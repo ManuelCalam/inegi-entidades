@@ -5,7 +5,7 @@
                 icon: 'success',
                 title: '¡Éxito!',
                 text: "{{ session('success') }}",
-                timer: 3000,
+                timer: 4000,
                 showConfirmButton: false
             });
         @endif
