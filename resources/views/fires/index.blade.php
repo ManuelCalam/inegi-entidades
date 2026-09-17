@@ -80,7 +80,7 @@
                                     <option value="">Selecciona una entidad</option>
                                 @endif
                                 <option value="{{ $entity->id }}" 
-                                    {{ old('entity_id', $fire->entity_id ?? '') == $entity->id ? 'selected' : '' }}>
+                                    {{ old('entity_id', $fire->entity_id ?? auth()->user()?->entity_id) == $entity->id ? 'selected' : '' }}>
                                     {{ $entity->name }}
                                 </option>
                             @empty
@@ -182,17 +182,17 @@
                     <div class="buttons">
                         @if(isset($fire))
                             @role('admin')
-                                <button type="submit">
+                                <button type="submit" class="main-button">
                                     Actualizar <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
                             @endrole
                         @else
-                            <button type="submit">
+                            <button type="submit" class="main-button">
                                 Guardar <i class="fa-solid fa-plus"></i>
                             </button>
                         @endif
 
-                        <a href="{{ route('fires.index') }}" class="button-link">
+                        <a href="{{ route('fires.index') }}" class="button-link main-button">
                         Limpiar <i class="fa-solid fa-rotate-left"></i> 
                         </a>
                     </div>

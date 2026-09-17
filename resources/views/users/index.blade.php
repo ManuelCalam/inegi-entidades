@@ -13,6 +13,7 @@
     <div class="py-8">
         <br>
 
+
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
             <!-- FORMULARIO DE REGISTRO -->
@@ -58,6 +59,23 @@
                             @enderror
                         </div>
 
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" for="entity_id">Entidad</label>
+                            <select name="entity_id" id="entity_id" class="w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm">
+                                @forelse($entities as $entity)
+                                    @if ($loop->first)
+                                        <option value="">Selecciona una entidad</option>
+                                    @endif
+                                    <option value="{{ $entity->id }}" 
+                                        {{ old('entity_id') == $entity->id ? 'selected' : '' }}>
+                                        {{ $entity->name }}
+                                    </option>
+                                @empty
+                                    <option value="" disabled>No hay entidades registradas</option>
+                                @endforelse
+                            </select>
+                        </div>
+
                         <!-- Contraseña -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
@@ -83,56 +101,8 @@
                     </div>
                 </form>
             </div>
-
-            <!-- TABLA DE USUARIOS REGISTRADOS -->
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">
-                    <i class="fa-solid"></i> Usuarios del Sistema
-                </h3>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th class="px-4 py-3">ID</th>
-                                <th class="px-4 py-3">Nombre</th>
-                                <th class="px-4 py-3">Correo</th>
-                                <th class="px-4 py-3">Rol</th>
-                                <th class="px-4 py-3">Fecha de Registro</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($users as $user)
-                                <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                    <td class="px-4 py-3 font-medium text-gray-900 dark:text-white">{{ $user->id }}</td>
-                                    <td class="px-4 py-3">{{ $user->name }}</td>
-                                    <td class="px-4 py-3">{{ $user->email }}</td>
-                                    <td class="px-4 py-3">
-                                        {{-- Muestra los roles asignados mediante Spatie --}}
-                                        @forelse($user->getRoleNames() as $role)
-                                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'">
-                                                {{ ucfirst($role) }}
-                                            </span>
-                                        @empty
-                                            <span class="text-gray-400 italic">Sin Rol</span>
-                                        @endforelse
-                                    </td>
-                                    <td class="px-4 py-3">{{ $user->created_at?->format('d/m/Y H:i') }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-4 py-3 text-center text-gray-500">No hay usuarios registrados.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-4">
-                    {{ $users->links() }}
-                </div>
-            </div>
-
         </div>
     </div>
+
+    <br>
 </x-app-layout>

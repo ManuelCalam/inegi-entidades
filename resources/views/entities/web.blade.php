@@ -179,17 +179,17 @@
                         <div class="buttons">
                             @if ($entity)
                                 @role('admin')
-                                    <button type="submit">
+                                    <button type="submit" class="main-button">
                                     Actualizar  <i class="fa-solid fa-pen"></i> 
                                     </button>
                                 @endrole
                             @else
-                                <button type="submit">
+                                <button type="submit" class="main-button">
                                 Agregar <i class="fa-solid fa-plus"></i> 
                                 </button>
                             @endif
 
-                            <a href="{{ route('entities.web') }}" class="button-link">
+                            <a href="{{ route('entities.web') }}" class="button-link main-button">
                             Limpiar <i class="fa-solid fa-rotate-left"></i> 
                             </a>
                         </div>
@@ -254,7 +254,7 @@
                         </div>
 
                         <div class="modal-actions">
-                            <button type="button" onclick="submitSelection()">Agregar Seleccionados</button>
+                            <button type="button" onclick="submitSelection()" class="main-button">Agregar Seleccionados</button>
                             <button type="button" class="btn-danger" onclick="closeModal()">Cancelar</button>
                         </div>
                     </div>

@@ -17,6 +17,4 @@ class FireFolio extends Model
     public function entity(): BelongsTo{
         return $this->belongsTo(Entity::class);
     }
-
-    
 }

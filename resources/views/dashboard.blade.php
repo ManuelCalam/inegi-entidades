@@ -125,7 +125,8 @@
                             <p>Registra, actualiza y consulta el estado de los incendios reportados, duraciones y niveles de control.</p>
                         </div>
                     </a>
-
+                    
+                    @role('admin')
                     <!-- Tarjeta 2: Entidades Federativas -->
                     <a href="{{ route('entities.web') }}" class="menu-card">
                         <div>
@@ -138,6 +139,8 @@
                             <p>Administra el catálogo de entidades federativas, sus tipos de vegetación y su centro regional.</p>
                         </div>
                     </a>
+
+                    @endrole
 
                 </div>
 

@@ -23,7 +23,7 @@ class StoreFireRequest extends FormRequest
     public function rules(): array
     {
         return [
-            // 'reported_at' => ['required', 'date'],
+            'reported_at' => ['required', 'date'],
             'entity_id' => ['required', 'exists:entities,id'],
             'municipality_id' => ['required', 'exists:municipalities,id'],
             'vegetation_type_id'=> ['required', 'exists:vegetation_types,id'],

@@ -41,4 +41,8 @@ class Entity extends Model
     public function fireFolios(): HasMany{
         return $this->hasMany(FireFolio::class);
     }
+
+    public function users(): HasMany{
+        return $this->hasMany(User::class);
+    }
 }

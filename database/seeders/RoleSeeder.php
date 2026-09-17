@@ -17,6 +17,7 @@ class RoleSeeder extends Seeder
             ['email' => 'correo@gmail.com'],
             [
                 'name'     => 'Manuel Calam',
+                'entity_id' => 23,
                 'password' => Hash::make('clave123'),
             ]
         );

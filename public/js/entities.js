@@ -62,7 +62,7 @@ window.openModal = async function (event, type, entityId = null) {
         }
 
         container.innerHTML = data.map(item => `
-            <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%; margin: 4px 0; padding: 4px 0;">
+            <div style="display: flex; align-items: center; justify-content: flex-start; width: 100%; margin: 4px; padding: 4px 0;">
                 <label style="display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; width: 100%; text-align: left; cursor: pointer; font-weight: normal;">
                     <input type="checkbox" name="selected_ids[]" value="${item.id}" data-name="${item.name}" style="margin: 0; padding: 0; width: 16px; height: 16px; flex-shrink: 0;">
                     <span style="margin: 0; padding: 0; line-height: 1;">${item.name}</span>
